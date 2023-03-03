@@ -206,6 +206,7 @@ class YOLO:
 
         overrides = self.overrides.copy()
         overrides['conf'] = 0.25
+        overrides['ov_device'] = kwargs.get('ov_device')
         overrides.update(kwargs)  # prefer kwargs
         overrides['mode'] = kwargs.get('mode', 'predict')
         assert overrides['mode'] in ['track', 'predict']
@@ -213,7 +214,7 @@ class YOLO:
         if not self.predictor:
             self.task = overrides.get('task') or self.task
             self.predictor = TASK_MAP[self.task][3](overrides=overrides)
-            self.predictor.setup_model(model=self.model)
+            self.predictor.setup_model(model=self.model, ov_device=kwargs.get('ov_device'))
         else:  # only update args if predictor is already setup
             self.predictor.args = get_cfg(self.predictor.args, overrides)
         is_cli = sys.argv[0].endswith('yolo') or sys.argv[0].endswith('ultralytics')

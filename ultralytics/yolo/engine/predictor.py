@@ -136,6 +136,7 @@ class BasePredictor:
 
     @smart_inference_mode()
     def stream_inference(self, source=None, model=None):
+    
         if self.args.verbose:
             LOGGER.info('')
 
@@ -218,11 +219,12 @@ class BasePredictor:
 
         self.run_callbacks('on_predict_end')
 
-    def setup_model(self, model):
+    def setup_model(self, model, ov_device="CPU"):
         device = select_device(self.args.device)
+        ov_device = self.args.ov_device
         model = model or self.args.model
         self.args.half &= device.type != 'cpu'  # half precision only supported on CUDA
-        self.model = AutoBackend(model, device=device, dnn=self.args.dnn, data=self.args.data, fp16=self.args.half)
+        self.model = AutoBackend(model, device=device, ov_device=ov_device, dnn=self.args.dnn, data=self.args.data, fp16=self.args.half)
         self.device = device
         self.model.eval()
 

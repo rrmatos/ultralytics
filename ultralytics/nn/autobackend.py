@@ -40,7 +40,7 @@ class AutoBackend(nn.Module):
             return yaml_load(check_yaml(data))['names']
         return {i: f'class{i}' for i in range(999)}  # return default if above errors
 
-    def __init__(self, weights='yolov8n.pt', device=torch.device('cpu'), dnn=False, data=None, fp16=False, fuse=True):
+    def __init__(self, weights='yolov8n.pt', device=torch.device('cpu'), ov_device='CPU', dnn=False, data=None, fp16=False, fuse=True):
         """
         MultiBackend class for python inference on various platforms using Ultralytics YOLO.
 
@@ -136,7 +136,8 @@ class AutoBackend(nn.Module):
             batch_dim = get_batch(network)
             if batch_dim.is_static:
                 batch_size = batch_dim.get_length()
-            executable_network = ie.compile_model(network, device_name='CPU')  # device_name="MYRIAD" for NCS2
+            print(f"openvino device -> {ov_device}")
+            executable_network = ie.compile_model(network, device_name=ov_device)  # device_name="MYRIAD" for NCS2
         elif engine:  # TensorRT
             LOGGER.info(f'Loading {w} for TensorRT inference...')
             import tensorrt as trt  # https://developer.nvidia.com/nvidia-tensorrt-download
